@@ -23,13 +23,18 @@ async function getTransporter() {
   // 2. If Gmail user & app password provided
   if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
     transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_PASS,
       },
+      tls: {
+        rejectUnauthorized: false,
+      },
     });
-    console.log(`📧 Configured Gmail SMTP transporter for ${process.env.GMAIL_USER}`);
+    console.log(`📧 Configured Gmail SSL SMTP transporter for ${process.env.GMAIL_USER}`);
     return transporter;
   }
 
@@ -54,10 +59,11 @@ async function getTransporter() {
 }
 
 export async function sendWelcomeEmail(toEmail: string, userName: string): Promise<boolean> {
+  console.log(`\n📧 [EMAIL DISPATCH START] Attempting welcome email for ${userName} <${toEmail}>...`);
   try {
     const mailTransporter = await getTransporter();
     if (!mailTransporter) {
-      console.log(`[SIMULATED EMAIL LOG] Welcome email sent to ${toEmail} for ${userName}`);
+      console.log(`⚠️ [SIMULATED EMAIL LOG] Welcome email sent to ${toEmail} for ${userName}`);
       return true;
     }
 
