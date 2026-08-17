@@ -28,6 +28,20 @@ router.post('/milestones/:id/toggle', toggleMilestone);
 // AI Tips route (Groq API / Llama 3.3 integration)
 router.post('/ai/tips', getAiTips);
 
+// Test Email Dispatch endpoint
+router.post('/test-email', async (req, res) => {
+  const { email } = req.body;
+  const targetEmail = email || 'bharath404074@gmail.com';
+  const { sendWelcomeEmail } = await import('../services/emailService');
+  const sent = await sendWelcomeEmail(targetEmail, 'GoalFlow Tester');
+  return res.json({
+    success: sent,
+    message: sent
+      ? `✅ Welcome email dispatched directly via Render to ${targetEmail}!`
+      : `❌ Failed to send welcome email to ${targetEmail}. Check server logs.`,
+  });
+});
+
 // Habit routes
 router.get('/habits', getHabits);
 router.post('/habits', createHabit);
