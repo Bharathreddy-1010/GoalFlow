@@ -1,4 +1,10 @@
 import nodemailer from 'nodemailer';
+import dns from 'dns';
+
+// Force Node.js to resolve IPv4 addresses first (prevents ENETUNREACH IPv6 errors on Render/Cloud hosts)
+try {
+  dns.setDefaultResultOrder('ipv4first');
+} catch (_) {}
 
 let transporter: nodemailer.Transporter | null = null;
 
@@ -15,7 +21,8 @@ async function getTransporter() {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
-    });
+      family: 4,
+    } as any);
     console.log(`📧 Configured custom SMTP transporter for ${process.env.SMTP_USER}`);
     return transporter;
   }
@@ -23,13 +30,17 @@ async function getTransporter() {
   // 2. If Gmail user & app password provided
   if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
     transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      requireTLS: true,
       auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_PASS,
       },
-    });
-    console.log(`📧 Configured Gmail SMTP transporter for ${process.env.GMAIL_USER}`);
+      family: 4,
+    } as any);
+    console.log(`📧 Configured Gmail IPv4 TLS SMTP transporter for ${process.env.GMAIL_USER}`);
     return transporter;
   }
 
