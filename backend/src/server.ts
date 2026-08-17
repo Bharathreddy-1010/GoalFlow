@@ -649,12 +649,14 @@ Example format:
     const targetEmail = (email || 'bharath404074@gmail.com').toLowerCase().trim();
     const targetName = name || 'Bharath B';
     console.log(`📧 Direct test email requested for ${targetName} <${targetEmail}>...`);
-    const sent = await sendWelcomeEmail(targetEmail, targetName);
-    return sendJson(res, sent ? 200 : 500, {
-      success: sent,
-      message: sent
+    const result = await sendWelcomeEmail(targetEmail, targetName);
+    return sendJson(res, result.success ? 200 : 500, {
+      success: result.success,
+      message: result.success
         ? `✅ Welcome email successfully delivered to ${targetEmail}!`
-        : `❌ Failed to send email to ${targetEmail}. Check server logs for details.`,
+        : `❌ Failed to send email to ${targetEmail}.`,
+      error: result.error || null,
+      messageId: result.messageId || null,
     });
   }
 

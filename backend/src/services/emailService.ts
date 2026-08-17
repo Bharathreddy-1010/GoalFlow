@@ -66,13 +66,13 @@ async function getTransporter() {
   return transporter;
 }
 
-export async function sendWelcomeEmail(toEmail: string, userName: string): Promise<boolean> {
+export async function sendWelcomeEmail(toEmail: string, userName: string): Promise<{ success: boolean; error?: string; messageId?: string }> {
   console.log(`\n📧 [EMAIL DISPATCH START] Attempting welcome email for ${userName} <${toEmail}>...`);
   try {
     const mailTransporter = await getTransporter();
     if (!mailTransporter) {
       console.log(`⚠️ [SIMULATED EMAIL LOG] Welcome email sent to ${toEmail} for ${userName}`);
-      return true;
+      return { success: true };
     }
 
     const htmlContent = `
@@ -140,9 +140,9 @@ export async function sendWelcomeEmail(toEmail: string, userName: string): Promi
       console.log(`🔗 VIEW SENT WELCOME EMAIL HERE: ${previewUrl}`);
     }
     
-    return true;
-  } catch (error) {
+    return { success: true, messageId: info.messageId };
+  } catch (error: any) {
     console.error(`❌ Failed to send welcome email to ${toEmail}:`, error);
-    return false;
+    return { success: false, error: error?.message || String(error) };
   }
 }
