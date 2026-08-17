@@ -34,6 +34,75 @@ pool.on('error', (err) => {
   console.error('PostgreSQL idle client warning:', err.message || err);
 });
 
+async function initDb() {
+  try {
+    console.log('🔄 Verifying/Creating PostgreSQL database tables...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id VARCHAR(50) PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        email VARCHAR(150) UNIQUE,
+        google_id VARCHAR(100),
+        apple_id VARCHAR(100),
+        avatar_url TEXT,
+        greeting VARCHAR(100) DEFAULT 'Good morning',
+        on_track_percentage INT DEFAULT 78,
+        preferred_areas TEXT[] DEFAULT '{}',
+        morning_time VARCHAR(50) DEFAULT '7:00 AM',
+        daily_focus_target VARCHAR(50) DEFAULT '1h 30m',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS goals (
+        id VARCHAR(50) PRIMARY KEY,
+        user_id VARCHAR(50),
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        category VARCHAR(50) NOT NULL,
+        priority VARCHAR(20) NOT NULL DEFAULT 'medium',
+        status VARCHAR(20) NOT NULL DEFAULT 'active',
+        current_progress NUMERIC NOT NULL DEFAULT 0,
+        target_progress NUMERIC NOT NULL DEFAULT 100,
+        unit VARCHAR(50) NOT NULL DEFAULT '%',
+        start_date VARCHAR(50),
+        target_date VARCHAR(50),
+        is_today_focus BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS milestones (
+        id VARCHAR(50) PRIMARY KEY,
+        goal_id VARCHAR(50) REFERENCES goals(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        completed BOOLEAN DEFAULT FALSE,
+        due_date VARCHAR(50)
+      );
+
+      CREATE TABLE IF NOT EXISTS habits (
+        id VARCHAR(50) PRIMARY KEY,
+        user_id VARCHAR(50),
+        title VARCHAR(255) NOT NULL,
+        category VARCHAR(50) NOT NULL,
+        frequency VARCHAR(20) NOT NULL DEFAULT 'daily',
+        streak_days INT DEFAULT 0,
+        completed_dates TEXT[] DEFAULT '{}'
+      );
+
+      CREATE TABLE IF NOT EXISTS progress_logs (
+        id VARCHAR(50) PRIMARY KEY,
+        goal_id VARCHAR(50) REFERENCES goals(id) ON DELETE CASCADE,
+        log_date VARCHAR(50) NOT NULL,
+        value_added NUMERIC NOT NULL,
+        note TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ PostgreSQL database tables verified and ready!');
+  } catch (err: any) {
+    console.error('❌ Database schema initialization error:', err.message || err);
+  }
+}
+
 // Helper for sending JSON responses with CORS
 function sendJson(res: http.ServerResponse, statusCode: number, data: any) {
   res.writeHead(statusCode, {
@@ -618,6 +687,7 @@ Example format:
 });
 
 server.listen(PORT, '0.0.0.0', async () => {
+  await initDb();
   console.log(`\n======================================================`);
   console.log(`🚀 Starting GoalFlow Backend API Server on Port ${PORT}...`);
   console.log(`======================================================`);
