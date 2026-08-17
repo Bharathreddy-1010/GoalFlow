@@ -1,0 +1,54 @@
+-- GoalFlow PostgreSQL Database Schema
+
+CREATE TABLE IF NOT EXISTS users (
+  id VARCHAR(50) PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(150) UNIQUE,
+  google_id VARCHAR(100),
+  apple_id VARCHAR(100),
+  avatar_url TEXT,
+  greeting VARCHAR(100) DEFAULT 'Good morning',
+  on_track_percentage INT DEFAULT 78,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS goals (
+  id VARCHAR(50) PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  category VARCHAR(50) NOT NULL,
+  priority VARCHAR(20) NOT NULL DEFAULT 'medium',
+  status VARCHAR(20) NOT NULL DEFAULT 'active',
+  current_progress NUMERIC NOT NULL DEFAULT 0,
+  target_progress NUMERIC NOT NULL DEFAULT 100,
+  unit VARCHAR(50) NOT NULL DEFAULT '%',
+  target_date VARCHAR(50),
+  is_today_focus BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS milestones (
+  id VARCHAR(50) PRIMARY KEY,
+  goal_id VARCHAR(50) REFERENCES goals(id) ON DELETE CASCADE,
+  title VARCHAR(255) NOT NULL,
+  completed BOOLEAN DEFAULT FALSE,
+  due_date VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS habits (
+  id VARCHAR(50) PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  category VARCHAR(50) NOT NULL,
+  frequency VARCHAR(20) NOT NULL DEFAULT 'daily',
+  streak_days INT DEFAULT 0,
+  completed_dates TEXT[] DEFAULT '{}'
+);
+
+CREATE TABLE IF NOT EXISTS progress_logs (
+  id VARCHAR(50) PRIMARY KEY,
+  goal_id VARCHAR(50) REFERENCES goals(id) ON DELETE CASCADE,
+  log_date VARCHAR(50) NOT NULL,
+  value_added NUMERIC NOT NULL,
+  note TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

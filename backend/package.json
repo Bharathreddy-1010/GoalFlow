@@ -1,0 +1,32 @@
+{
+  "name": "goalflow-backend",
+  "version": "1.0.0",
+  "description": "GoalFlow Node.js + Express + PostgreSQL REST API",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "node compile.js",
+    "start": "node dist/server.js",
+    "seed": "node compile.js && node dist/db/seed.js",
+    "dev": "node dist/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^9.0.5",
+    "pg": "^8.11.5"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20.12.7",
+    "@types/nodemailer": "^8.0.1",
+    "@types/pg": "^8.11.6",
+    "esbuild": "^0.28.2",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.4.5"
+  }
+}

@@ -1,0 +1,20 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Duplicate Video source folder
+videos/
+
+# Node.js backend
+backend/node_modules/
+backend/dist/
+backend/.env
+
+# Flutter app
+goalflow_flutter/.dart_tool/
+goalflow_flutter/.idea/
+goalflow_flutter/build/
+goalflow_flutter/.flutter-plugins
+goalflow_flutter/.flutter-plugins-dependencies
+goalflow_flutter/.pub-cache/
+goalflow_flutter/.pub/

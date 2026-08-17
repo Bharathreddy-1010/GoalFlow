@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: goalflow-backend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: JWT_SECRET
+        value: goalflow_production_jwt_secret_2026
+      - key: GROQ_API_KEY
+        value: gsk_YOUR_GROQ_API_KEY_HERE
+      - key: GMAIL_USER
+        value: bharath404074@gmail.com
+      - key: GMAIL_PASS
+        value: lhrflwfquegqygdr
+      - key: DATABASE_URL
+        fromDatabase:
+          name: goalflow-db
+          property: connectionString
+
+databases:
+  - name: goalflow-db
+    databaseName: goalflow
+    user: goalflow_user
