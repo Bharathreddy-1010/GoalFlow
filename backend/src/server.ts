@@ -106,7 +106,8 @@ const defaultGoals = [
 
 const server = http.createServer(async (req, res) => {
   const parsedUrl = new URL(req.url || '/', `http://${req.headers.host || 'localhost:5001'}`);
-  const pathname = parsedUrl.pathname;
+  const rawPath = parsedUrl.pathname;
+  const pathname = rawPath === '/health' ? '/health' : (rawPath.startsWith('/api') ? rawPath : `/api${rawPath.startsWith('/') ? '' : '/'}${rawPath}`);
   const method = req.method || 'GET';
 
   // Handle CORS Preflight
