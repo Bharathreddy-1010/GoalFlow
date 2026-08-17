@@ -14,14 +14,16 @@ class ApiService {
   static String? get jwtToken => _jwtToken;
 
   static String get baseUrl {
+    const String productionUrl = 'https://goalflow-ppxe.onrender.com/api';
+
     if (kIsWeb) {
       final Uri currentUri = Uri.base;
-      final String host = currentUri.host.isEmpty ? 'localhost' : currentUri.host;
-      final int port = currentUri.port == 0 ? 5001 : (currentUri.port == 80 || currentUri.port == 443 ? currentUri.port : 5001);
-      final String scheme = currentUri.scheme.isEmpty ? 'http' : currentUri.scheme;
-      return '$scheme://$host:$port/api';
+      if (currentUri.host == 'localhost' || currentUri.host == '127.0.0.1') {
+        return 'http://${currentUri.host}:5001/api';
+      }
+      return productionUrl;
     }
-    return 'http://10.0.2.2:5001/api';
+    return productionUrl;
   }
 
   static Map<String, String> get _headers => {
