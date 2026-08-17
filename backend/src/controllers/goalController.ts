@@ -1,9 +1,31 @@
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import { pool } from '../db';
+
+function getUserIdFromReq(req: Request): string | null {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      const token = authHeader.split(' ')[1];
+      const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'goalflow_super_secret_jwt_key_2026');
+      return decoded.userId || decoded.id || null;
+    } catch (_) {}
+  }
+  return (req.query.userId as string) || (req.body.userId as string) || null;
+}
 
 export const getGoals = async (req: Request, res: Response) => {
   try {
-    const goalsRes = await pool.query('SELECT * FROM goals ORDER BY created_at DESC');
+    const userId = getUserIdFromReq(req);
+    let goalsRes;
+    if (userId) {
+      goalsRes = await pool.query(
+        'SELECT * FROM goals WHERE user_id = $1 OR user_id IS NULL ORDER BY created_at DESC',
+        [userId]
+      );
+    } else {
+      goalsRes = await pool.query('SELECT * FROM goals ORDER BY created_at DESC');
+    }
     const goals = goalsRes.rows;
 
     const milestonesRes = await pool.query('SELECT * FROM milestones');
@@ -61,11 +83,12 @@ export const createGoal = async (req: Request, res: Response) => {
   try {
     const { title, description, category, priority, targetProgress, unit, startDate, targetDate, milestones } = req.body;
     const goalId = 'g_' + Date.now();
+    const userId = getUserIdFromReq(req);
 
     await pool.query(
-      `INSERT INTO goals (id, title, description, category, priority, status, current_progress, target_progress, unit, start_date, target_date, is_today_focus)
-       VALUES ($1, $2, $3, $4, $5, 'active', 0, $6, $7, $8, $9, false)`,
-      [goalId, title, description || '', category, priority || 'medium', targetProgress || 100, unit || '%', startDate || 'Today', targetDate || '']
+      `INSERT INTO goals (id, user_id, title, description, category, priority, status, current_progress, target_progress, unit, start_date, target_date, is_today_focus)
+       VALUES ($1, $2, $3, $4, $5, $6, 'active', 0, $7, $8, $9, $10, false)`,
+      [goalId, userId, title, description || '', category, priority || 'medium', targetProgress || 100, unit || '%', startDate || 'Today', targetDate || '']
     );
 
     if (Array.isArray(milestones)) {

@@ -110,8 +110,9 @@ export async function sendWelcomeEmail(toEmail: string, userName: string): Promi
       </html>
     `;
 
+    const senderAddress = process.env.GMAIL_USER || process.env.SMTP_USER || 'welcome@goalflow.app';
     const info = await mailTransporter.sendMail({
-      from: '"GoalFlow Team" <welcome@goalflow.app>',
+      from: `"GoalFlow Team" <${senderAddress}>`,
       to: toEmail,
       subject: `🎉 Welcome to GoalFlow, ${userName}!`,
       html: htmlContent,

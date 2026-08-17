@@ -12,6 +12,8 @@ async function migrate() {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS morning_time VARCHAR(50) DEFAULT '7:00 AM';
       ALTER TABLE users ADD COLUMN IF NOT EXISTS daily_focus_target VARCHAR(50) DEFAULT '1h 30m';
       ALTER TABLE goals ADD COLUMN IF NOT EXISTS start_date VARCHAR(50);
+      ALTER TABLE goals ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
+      ALTER TABLE habits ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
     `);
     console.log('✅ PostgreSQL schema successfully updated with user preferences!');
   } catch (err: any) {
