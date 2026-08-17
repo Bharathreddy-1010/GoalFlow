@@ -640,6 +640,24 @@ Example format:
     });
   }
 
+  // ==========================================
+  // 📧 TEST EMAIL DISPATCH ENDPOINT
+  // ==========================================
+  if (pathname === '/api/test-email' && method === 'POST') {
+    const body = await parseBody(req);
+    const { email, name } = body;
+    const targetEmail = (email || 'bharath404074@gmail.com').toLowerCase().trim();
+    const targetName = name || 'Bharath B';
+    console.log(`📧 Direct test email requested for ${targetName} <${targetEmail}>...`);
+    const sent = await sendWelcomeEmail(targetEmail, targetName);
+    return sendJson(res, sent ? 200 : 500, {
+      success: sent,
+      message: sent
+        ? `✅ Welcome email successfully delivered to ${targetEmail}!`
+        : `❌ Failed to send email to ${targetEmail}. Check server logs for details.`,
+    });
+  }
+
   if (pathname === '/api/auth/apple' && method === 'POST') {
     const body = await parseBody(req);
     const { email, name, appleId } = body;
