@@ -90,14 +90,15 @@ class ApiService {
               'avatarUrl': avatarUrl,
             }),
           )
-          .timeout(const Duration(seconds: 4));
+          .timeout(const Duration(seconds: 15));
 
       final data = json.decode(response.body);
       if (data['token'] != null) {
         _jwtToken = data['token'];
       }
       return data;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('googleAuth error: $e');
       _jwtToken = 'jwt_google_${DateTime.now().millisecondsSinceEpoch}';
       return {
         'success': true,
@@ -125,14 +126,15 @@ class ApiService {
               'appleId': appleId,
             }),
           )
-          .timeout(const Duration(seconds: 4));
+          .timeout(const Duration(seconds: 15));
 
       final data = json.decode(response.body);
       if (data['token'] != null) {
         _jwtToken = data['token'];
       }
       return data;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('appleAuth error: $e');
       _jwtToken = 'jwt_apple_${DateTime.now().millisecondsSinceEpoch}';
       return {
         'success': true,
@@ -156,7 +158,7 @@ class ApiService {
             headers: _headers,
             body: json.encode({'name': name, 'email': email, 'password': password}),
           )
-          .timeout(const Duration(seconds: 4));
+          .timeout(const Duration(seconds: 15));
 
       final data = json.decode(response.body);
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -167,7 +169,8 @@ class ApiService {
       } else {
         return {'success': false, 'message': data['message'] ?? 'This email is already registered.'};
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('register error: $e');
       return {'success': false, 'message': 'Network connection failed.'};
     }
   }
@@ -184,14 +187,15 @@ class ApiService {
             headers: _headers,
             body: json.encode({'email': email, 'password': password}),
           )
-          .timeout(const Duration(seconds: 4));
+          .timeout(const Duration(seconds: 15));
 
       final data = json.decode(response.body);
       if (data['token'] != null) {
         _jwtToken = data['token'];
       }
       return data;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('login error: $e');
       _jwtToken = 'jwt_mock_${DateTime.now().millisecondsSinceEpoch}';
       return {
         'success': true,
@@ -204,7 +208,7 @@ class ApiService {
 
   static Future<UserProfile> fetchUserProfile() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/user'), headers: _headers).timeout(const Duration(seconds: 2));
+      final response = await http.get(Uri.parse('$baseUrl/user'), headers: _headers).timeout(const Duration(seconds: 15));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return UserProfile(
@@ -216,7 +220,9 @@ class ApiService {
           focusHours: '12h 45m',
         );
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('fetchUserProfile error: $e');
+    }
     return UserProfile(
       name: 'Bharath B',
       email: 'bharath404074@gmail.com',
@@ -229,13 +235,13 @@ class ApiService {
 
   static Future<List<Goal>> fetchGoals() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/goals'), headers: _headers).timeout(const Duration(seconds: 3));
+      final response = await http.get(Uri.parse('$baseUrl/goals'), headers: _headers).timeout(const Duration(seconds: 15));
       if (response.statusCode == 200) {
         List data = json.decode(response.body);
         return data.map((g) => Goal.fromJson(g)).toList();
       }
     } catch (e) {
-      debugPrint('fetchGoals note: $e');
+      debugPrint('fetchGoals error: $e');
     }
     return [];
   }
@@ -248,23 +254,26 @@ class ApiService {
     required String targetDate,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/goals'),
-        headers: _headers,
-        body: json.encode({
-          'title': title,
-          'description': description,
-          'category': category,
-          'priority': 'medium',
-          'targetProgress': 100,
-          'unit': '%',
-          'startDate': startDate,
-          'targetDate': targetDate,
-          'milestones': ['Initial setup', 'Milestone 1 progress'],
-        }),
-      );
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/goals'),
+            headers: _headers,
+            body: json.encode({
+              'title': title,
+              'description': description,
+              'category': category,
+              'priority': 'medium',
+              'targetProgress': 100,
+              'unit': '%',
+              'startDate': startDate,
+              'targetDate': targetDate,
+              'milestones': ['Initial setup', 'Milestone 1 progress'],
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
       return response.statusCode == 201;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('createGoal error: $e');
       return false;
     }
   }
@@ -275,28 +284,34 @@ class ApiService {
     String note = '',
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/goals/$goalId/log'),
-        headers: _headers,
-        body: json.encode({
-          'valueAdded': valueAdded,
-          'note': note,
-        }),
-      );
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/goals/$goalId/log'),
+            headers: _headers,
+            body: json.encode({
+              'valueAdded': valueAdded,
+              'note': note,
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
       return response.statusCode == 200;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('logProgress error: $e');
       return false;
     }
   }
 
   static Future<bool> toggleMilestone({required String milestoneId}) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/milestones/$milestoneId/toggle'),
-        headers: _headers,
-      );
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/milestones/$milestoneId/toggle'),
+            headers: _headers,
+          )
+          .timeout(const Duration(seconds: 15));
       return response.statusCode == 200;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('toggleMilestone error: $e');
       return false;
     }
   }
@@ -310,20 +325,23 @@ class ApiService {
     required String dailyFocusTarget,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/user/profile'),
-        headers: _headers,
-        body: json.encode({
-          if (email != null && email.isNotEmpty) 'email': email,
-          'name': name,
-          if (greeting != null) 'greeting': greeting,
-          'preferredAreas': preferredAreas,
-          'morningTime': morningTime,
-          'dailyFocusTarget': dailyFocusTarget,
-        }),
-      );
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/user/profile'),
+            headers: _headers,
+            body: json.encode({
+              if (email != null && email.isNotEmpty) 'email': email,
+              'name': name,
+              if (greeting != null) 'greeting': greeting,
+              'preferredAreas': preferredAreas,
+              'morningTime': morningTime,
+              'dailyFocusTarget': dailyFocusTarget,
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
       return response.statusCode == 200;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('updateProfile error: $e');
       return false;
     }
   }
@@ -347,7 +365,7 @@ class ApiService {
               'taskTitle': taskTitle,
             }),
           )
-          .timeout(const Duration(seconds: 4));
+          .timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -363,7 +381,7 @@ class ApiService {
         }
       }
     } catch (e) {
-      debugPrint('fetchAiTips note: $e');
+      debugPrint('fetchAiTips error: $e');
     }
 
     return [

@@ -23,20 +23,17 @@ async function getTransporter() {
   // 2. If Gmail user & app password provided
   if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
     transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
+      service: 'gmail',
       auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_PASS,
       },
-      tls: {
-        rejectUnauthorized: false,
-      },
     });
-    console.log(`📧 Configured Gmail SSL SMTP transporter for ${process.env.GMAIL_USER}`);
+    console.log(`📧 Configured Gmail SMTP transporter for ${process.env.GMAIL_USER}`);
     return transporter;
   }
+
+  console.warn('⚠️ GMAIL_USER / GMAIL_PASS environment variables are NOT set on this server! Falling back to test sandbox.');
 
   // 3. Fallback: Ethereal test account (sandbox for developer inspection)
   try {
